@@ -6,10 +6,12 @@ let chat: Chat | null = null;
 
 const getAiInstance = (): GoogleGenAI => {
   if (!ai) {
-    if (!process.env.API_KEY) {
-      throw new Error("API_KEY environment variable not set");
+    // Vite's define plugin will replace process.env.API_KEY with the actual key
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("API_KEY not found. Please check your .env file and restart the server.");
     }
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    ai = new GoogleGenAI({ apiKey: apiKey });
   }
   return ai;
 };
@@ -33,14 +35,14 @@ export async function analyzeImageWithGemini(
     const textPart: Part = { text: prompt };
 
     const response = await aiInstance.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-flash-latest',
       contents: { parts: [textPart, imagePart] },
     });
 
     return response.text;
   } catch (error) {
     console.error("Error analyzing image with Gemini:", error);
-    throw new Error("Failed to analyze image. Please try again later.");
+    throw new Error("Failed to analyze image: " + (error instanceof Error ? error.message : String(error)));
   }
 }
 
@@ -50,9 +52,9 @@ const initializeChat = (): Chat => {
     return chat;
   }
   const aiInstance = getAiInstance();
-  
+
   const newChat = aiInstance.chats.create({
-    model: 'gemini-2.5-flash',
+    model: 'gemini-flash-latest',
     config: {
       systemInstruction: SYSTEM_INSTRUCTION,
     }
@@ -76,12 +78,17 @@ export async function* getCenturionAIResponseStream(
         },
       };
       const userQuestion = message || "describe the contents of this file in detail.";
-      // Updated prompt for concise answer, bolding, and CUTM encouragement
-      const textPrompt = `Directly and concisely answer the user's question about the following file: "${userQuestion}". Use markdown bolding (\`**text**\`) to highlight the most important parts of your analysis. After providing the answer, conclude your response with the exact sentence on a new line: "For any questions about courses, admissions, or campus life, feel free to ask me about Centurion University!"`;
+      // Updated prompt for simplicity and language support
+      const textPrompt = `${SYSTEM_INSTRUCTION}
+
+User has uploaded a file. Directly and concisely answer the user's question about the following file in a very simple way: "${userQuestion}". 
+Remember to use simple Indian English or Tenglish if appropriate.
+Use markdown bolding (**text**) to highlight the most important parts.
+After providing the answer, conclude with: "Feel free to ask me anything else about CUTM!"`;
       const textPart: Part = { text: textPrompt };
 
       const response = await aiInstance.models.generateContentStream({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-flash-latest',
         contents: [{ parts: [textPart, filePart] }],
       });
 
@@ -91,7 +98,7 @@ export async function* getCenturionAIResponseStream(
       return; // End the generator
     } catch (error) {
       console.error("Error streaming file analysis from Gemini:", error);
-      yield "I'm sorry, I encountered an error while analyzing the file. Please try again later.";
+      yield "Error analyzing file: " + (error instanceof Error ? error.message : String(error));
       return;
     }
   }
@@ -105,6 +112,7 @@ export async function* getCenturionAIResponseStream(
     }
   } catch (error) {
     console.error("Error streaming message from Gemini:", error);
-    yield "I'm sorry, I encountered an error while processing your request. Please try again later.";
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    yield "I'm sorry, I encountered an error: " + errorMessage;
   }
 }

@@ -1,39 +1,116 @@
-/* Custom scrollbar for Webkit browsers (Chrome, Safari) */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-maroon: #800000;
+  --primary-gold: #FFD700;
+  --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+  --dark-bg-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+}
+
+body {
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background-color: transparent;
 }
-
-/* Light mode scrollbar */
 ::-webkit-scrollbar-thumb {
-  background-color: #d1d5db; /* gray-300 */
+  background-color: #cbd5e1;
   border-radius: 10px;
-  border: 2px solid #ffffff; /* white */
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af; /* gray-400 */
+  background-color: #94a3b8;
 }
 
-/* Dark mode scrollbar */
 .dark ::-webkit-scrollbar-thumb {
-  background-color: #374151; /* gray-700 */
-  border: 2px solid #000000; /* black */
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background-color: #4b5563; /* gray-600 */
+  background-color: #334155;
 }
 
-
-/* Custom scrollbar for Firefox */
-/* Light mode */
-html {
-  scrollbar-width: thin;
-  scrollbar-color: #d1d5db #ffffff;
+/* Glassmorphism */
+.glass-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
-/* Dark mode */
-html.dark {
-  scrollbar-color: #374151 #000000;
+.dark .glass-header {
+  background: rgba(2, 6, 23, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Message Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-message {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+/* Gradient Backgrounds */
+.main-bg {
+  background: var(--bg-gradient);
+}
+
+.dark .main-bg {
+  background: var(--dark-bg-gradient);
+}
+
+/* Message Bubbles */
+.bot-bubble {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  border-radius: 2px 18px 18px 18px;
+}
+
+.dark .bot-bubble {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.user-bubble {
+  background: linear-gradient(135deg, #800000 0%, #a52a2a 100%);
+  color: white;
+  border-radius: 18px 2px 18px 18px;
+  box-shadow: 0 4px 10px rgba(128, 0, 0, 0.2);
+}
+
+/* Input Area */
+.input-container {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .input-container {
+  background: rgba(15, 23, 42, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Markdown Styling */
+.prose strong {
+  color: var(--primary-maroon);
+}
+.dark .prose strong {
+  color: #fbbf24; /* gold */
 }

@@ -22,7 +22,7 @@ const App: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'initial',
-      text: "Hello! I'm CenturionAI. My main goal is to assist you with information about Centurion University (CUTM).\n\nHowever, feel free to ask me anything else you're curious about! I'll do my best to help.\n\nHow can I assist you today?",
+      text: "Namaste! I'm **CenturionAI**. I'm here to help you with anything related to **Centurion University (CUTM)**.\n\nWhether it's about admissions, fees, or campus life, just ask! I can even understand **Tenglish** or **Hindi**. How can I help you today?",
       sender: Sender.Bot,
     },
   ]);
@@ -30,9 +30,11 @@ const App: React.FC = () => {
   const chatContainerRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    // A more reliable scroll-to-bottom
     if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [messages, isLoading]);
 
@@ -41,21 +43,21 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     const fileInfo = file ? { name: file.name, url: URL.createObjectURL(file), type: file.type } : undefined;
-    
+
     const newUserMessage: Message = {
       id: Date.now().toString(),
       text: userMessage,
       sender: Sender.User,
       file: fileInfo,
     };
-    
+
     const botMessageId = (Date.now() + 1).toString();
     const newBotMessage: Message = {
       id: botMessageId,
-      text: '', // Start with empty text
+      text: '',
       sender: Sender.Bot,
     };
-    
+
     setMessages((prevMessages) => [...prevMessages, newUserMessage, newBotMessage]);
 
     try {
@@ -69,17 +71,18 @@ const App: React.FC = () => {
       }
 
       for await (const chunk of stream) {
-        setMessages(prev => prev.map(msg => 
-          msg.id === botMessageId 
-            ? { ...msg, text: msg.text + chunk } 
+        setMessages(prev => prev.map(msg =>
+          msg.id === botMessageId
+            ? { ...msg, text: msg.text + chunk }
             : msg
         ));
       }
 
     } catch (error) {
-      setMessages(prev => prev.map(msg => 
-        msg.id === botMessageId 
-          ? { ...msg, text: "Sorry, I'm having trouble connecting right now. Please try again later." }
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      setMessages(prev => prev.map(msg =>
+        msg.id === botMessageId
+          ? { ...msg, text: "I'm sorry, I encountered an error: " + errorMessage }
           : msg
       ));
     } finally {
@@ -88,20 +91,29 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen max-h-screen bg-gray-50 dark:bg-black font-sans text-black dark:text-gray-200">
+    <div className="flex flex-col h-screen max-h-screen main-bg overflow-hidden">
       <Header />
-      <main ref={chatContainerRef} className="flex-grow overflow-y-auto">
-        <div className="max-w-4xl mx-auto pt-8 pb-4">
+
+      <main ref={chatContainerRef} className="flex-grow overflow-y-auto scroll-smooth">
+        <div className="max-w-4xl mx-auto py-8">
           {messages.map((msg) => (
             <ChatMessage key={msg.id} message={msg} />
           ))}
           {messages.length === 1 && (
             <InitialSuggestions onSuggestionClick={(suggestion) => handleSendMessage(suggestion)} />
           )}
+          {isLoading && messages[messages.length - 1].text === '' && (
+            <div className="px-6 py-4 animate-pulse italic text-sm text-gray-500">
+              CenturionAI is thinking...
+            </div>
+          )}
         </div>
       </main>
+
       <footer className="w-full shrink-0">
-         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+        <div className="max-w-4xl mx-auto">
+          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+        </div>
       </footer>
     </div>
   );

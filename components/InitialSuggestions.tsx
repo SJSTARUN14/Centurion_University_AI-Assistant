@@ -5,10 +5,10 @@ interface InitialSuggestionsProps {
 }
 
 const suggestions = [
-  { text: "🏫 Admissions", icon: "🎓" },
-  { text: "💰 Fee Details", icon: "💸" },
-  { text: "🏠 Hostels", icon: "🛌" },
-  { text: "📞 Contact Info", icon: "📱" },
+  "Admissions",
+  "Fee Details",
+  "Hostels",
+  "Contact Info",
 ];
 
 const InitialSuggestions: React.FC<InitialSuggestionsProps> = ({ onSuggestionClick }) => {
@@ -19,14 +19,13 @@ const InitialSuggestions: React.FC<InitialSuggestionsProps> = ({ onSuggestionCli
         <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Choose a topic or ask me anything</p>
       </div>
       <div className="flex flex-wrap justify-center gap-3 px-4">
-        {suggestions.map((item) => (
+        {suggestions.map((text) => (
           <button
-            key={item.text}
-            onClick={() => onSuggestionClick(item.text)}
-            className="group flex items-center gap-3 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 px-6 rounded-2xl transition-all duration-200 shadow-sm border border-black/5 dark:border-white/5 hover:shadow-md hover:-translate-y-1"
+            key={text}
+            onClick={() => onSuggestionClick(text)}
+            className="group flex items-center gap-3 bg-white hover:bg-slate-50 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 px-8 rounded-2xl transition-all duration-200 shadow-sm border border-black/5 dark:border-white/5 hover:shadow-md hover:-translate-y-1"
           >
-            <span className="text-lg group-hover:scale-125 transition-transform">{item.icon}</span>
-            <span className="text-sm">{item.text}</span>
+            <span className="text-sm">{text}</span>
           </button>
         ))}
       </div>
